@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "update_time": "2026-08-15 19:58:58",
+    "version": "1.0"
+  },
+  "cover": {
+    "kpis": {},
+    "trends": {}
+  },
+  "growth": {
+    "pmi_official": [],
+    "pmi_caixin": [],
+    "gdp_qoq": [],
+    "retail_sales": [],
+    "fixed_asset_inv": []
+  },
+  "inflation": {
+    "cpi_yoy": [],
+    "ppi_yoy": [],
+    "core_cpi": []
+  },
+  "rates": {
+    "lpr_1y": [],
+    "lpr_5y": [],
+    "mlf_rate": [],
+    "slr": [],
+    "fr007": [],
+    "dr007": [],
+    "yield_cn_1y": [],
+    "yield_cn_5y": [],
+    "yield_cn_10y": [],
+    "yield_cn_30y": []
+  },
+  "fx": {
+    "usd_cny": [],
+    "eur_cny": [],
+    "gbp_cny": [],
+    "jpy_cny": [],
+    "dxy": [],
+    "gold_usd": [],
+    "silver_usd": [],
+    "cross_rates": {}
+  },
+  "policy": {
+    "rrr": [],
+    "lpr_1y": [],
+    "lpr_5y": [],
+    "bond_issuance": []
+  },
+  "risk": {
+    "vix": [],
+    "credit_spread": [],
+    "equity_cn": [],
+    "equity_us": []
+  },
+  "news": [],
+  "global": {
+    "fed_rate": [],
+    "ecb_rate": [],
+    "boj_rate": [],
+    "boe_rate": [],
+    "usa_cpi": [],
+    "usa_pmi": [],
+    "usa_nonfarm": [],
+    "usa_unemployment": [],
+    "usa_gdp": [],
+    "euro_cpi": [],
+    "euro_pmi": [],
+    "uk_cpi": [],
+    "japan_cpi": []
+  },
+  "metals": {
+    "copper": [],
+    "aluminum": [],
+    "zinc": [],
+    "lead": [],
+    "nickel": [],
+    "tin": [],
+    "gold": [],
+    "silver": []
+  },
+  "analysis": {
+    "summary": null,
+    "signals": []
+  },
+  "omo": [],
+  "mlf": [],
+  "local_bonds": [],
+  "yield_curve": {
+    "levels": {},
+    "spreads": {},
+    "history": {}
+  },
+  "fed_expectations": {
+    "calendar": [],
+    "latest_meetings": [],
+    "dot_plot": [],
+    "current_rate": null,
+    "last_change_date": null
+  },
+  "fx_quotes": {
+    "spot": {}
+  },
+  "fx_multi": {},
+  "inflation_expectation": {
+    "cpi_exp_1y": [],
+    "ppi_exp_1y": []
+  },
+  "lithium_companies": {
+    "companies": [],
+    "summary": {}
+  },
+  "lithium_chain_summary": {
+    "summary": {},
+    "supply": {},
+    "demand": {}
+  },
+  "lithium_inventory": {}
+}

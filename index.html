@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>宏观交易监测看板</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#0b0f19;--panel:#141b2d;--card:#1e2642;--text:#e0e6f1;--muted:#8b9bb4;--accent:#00d4ff;--up:#ff4d4d;--down:#00e676;--border:#2a3452}
+*{box-sizing:border-box;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;height:100%;overflow:hidden}
+body{display:flex;flex-direction:column}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+h1{margin:0;font-size:16px;letter-spacing:1px}
+.subtitle{color:var(--muted);font-size:11px;margin-left:10px}
+.refresh-btn{background:var(--card);border:1px solid var(--border);color:var(--accent);padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px}
+.refresh-btn:hover{border-color:var(--accent)}
+.container{display:flex;flex:1;overflow:hidden}
+.sidebar{width:160px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.nav-item{padding:11px 16px;cursor:pointer;border-left:3px solid transparent;color:var(--muted);font-size:12px;transition:all .2s;white-space:nowrap}
+.nav-item:hover{background:rgba(0,212,255,.05);color:var(--text)}
+.nav-item.active{background:rgba(0,212,255,.1);color:var(--accent);border-left-color:var(--accent)}
+.main{flex:1;overflow-y:auto;padding:14px}
+.section{display:none}.section.active{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px}
+.kpi-label{color:var(--muted);font-size:10px;margin-bottom:4px}
+.kpi-value{font-size:18px;font-weight:600}
+.kpi-delta{font-size:10px;margin-top:2px}
+.chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1400px){.chart-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;min-width:0}
+.chart-title{color:var(--muted);font-size:11px;margin-bottom:6px;font-weight:500}
+.chart{width:100%;height:260px}
+.interpret-panel{margin-top:6px;padding:6px 8px;background:rgba(0,0,0,.2);border-radius:4px;font-size:10px;line-height:1.5;color:#b0bec5;border-left:2px solid var(--accent)}
+.interpret-panel .tip{color:var(--accent)}
+.fx-live-table{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.fx-live-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;padding:4px 8px;font-size:11px;color:#c8d3e8;border-bottom:1px solid rgba(58,69,102,.35)}
+.fx-live-row:nth-child(even){background:rgba(0,0,0,.15)}
+.fx-live-head{color:var(--muted);font-size:10px;background:rgba(0,0,0,.25);border-radius:4px 4px 0 0}
+.news-list{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px}
+.news-filter{display:flex;gap:8px;margin-bottom:10px}
+.news-filter span{padding:3px 8px;border-radius:3px;font-size:11px;cursor:pointer;background:var(--panel);color:var(--muted)}
+.news-filter span.active{background:var(--accent);color:#000}
+.news-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.news-item:last-child{border-bottom:none}
+.news-time{color:var(--muted);font-size:10px;margin-right:6px}
+.news-tier{display:inline-block;padding:1px 4px;border-radius:2px;font-size:9px;margin-right:6px;font-weight:600}
+.tier-A{background:rgba(255,77,77,.2);color:var(--up)}.tier-B{background:rgba(255,193,7,.2);color:#ffc107}.tier-C{background:rgba(139,155,180,.2);color:var(--muted)}
+.loading{color:var(--muted);text-align:center;padding:30px}
+.error{color:var(--up);padding:8px;font-size:12px}
+.signal-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:8px}
+.signal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-bottom:14px}
+.signal-dim{display:flex;align-items:center;gap:5px;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.signal-dim .dim-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.signal-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:11px;line-height:1.5}
+.signal-row .sig-desc{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);margin-right:6px}
+.signal-level{padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600;flex-shrink:0;white-space:nowrap}
+.signal-value{color:var(--text);font-size:11px;font-weight:500;flex-shrink:0;margin-right:4px;min-width:50px;text-align:right}
+.level-扩张,.level-流入,.level-宽松,.level-性价比高{background:rgba(0,230,118,.15);color:#00e676}
+.level-收缩,.level-流出,.level-偏紧,.level-性价比低{background:rgba(255,77,77,.15);color:#ff4d4d}
+.level-稳定,.level-中性,.level-温和,.level-正常{background:rgba(139,155,180,.15);color:#8b9bb4}
+.level-偏高,.level-偏低,.level-偏弱,.level-偏快,.level-资金沉淀,.level-净回笼{background:rgba(255,193,7,.15);color:#ffc107}
+.level-净投放,.level-资金活化{background:rgba(0,212,255,.15);color:var(--accent)}
+.level-加息概率高{background:rgba(255,77,77,.15);color:#ff4d4d}
+.level-降息概率高{background:rgba(0,230,118,.15);color:#00e676}
+.summary-box{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6}
+.section-title{font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px}
+.module-title{font-size:13px;font-weight:600;color:var(--text);margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header>
+<div style="display:flex;align-items:center">
+<h1>宏观交易监测看板</h1>
+<span class="subtitle">交易前沿机构视角 · 全球宏观一体化</span>
+<span class="subtitle" id="lastRefresh" style="margin-left:16px">最后刷新: --</span>
+</div>
+<div style="display:flex;gap:8px;align-items:center">
+<span class="subtitle" style="font-size:10px">数据由服务器定时更新</span>
+</div>
+</header>
+<div class="container">
+<aside class="sidebar">
+<div class="nav-item active" data-section="cover">🏠 封面 Cover</div>
+<div class="nav-item" data-section="growth">📈 增长 Growth</div>
+<div class="nav-item" data-section="inflation">🔥 通胀 Inflation</div>
+<div class="nav-item" data-section="rates">💰 流动性利率</div>
+<div class="nav-item" data-section="rates_b">📊 利率结构</div>
+<div class="nav-item" data-section="fed">🏦 美联储</div>
+<div class="nav-item" data-section="fx">💱 汇率跨境</div>
+<div class="nav-item" data-section="global">🌍 海外宏观</div>
+<div class="nav-item" data-section="policy">🏛️ 政策财政</div>
+<div class="nav-item" data-section="risk">⚡ 风险情绪</div>
+<div class="nav-item" data-section="analysis">📋 宏观信号</div>
+<div class="nav-item" data-section="news">📰 新闻流</div>
+<div class="nav-item" data-section="metals">🔶 有色金属</div>
+<div class="nav-item" data-section="lithium">🔋 锂企存货</div>
+</aside>
+<main class="main" id="main">
+<div class="section active" id="cover"></div>
+<div class="section" id="growth"></div>
+<div class="section" id="inflation"></div>
+<div class="section" id="rates"></div>
+<div class="section" id="rates_b"></div>
+<div class="section" id="fed"></div>
+<div class="section" id="fx"></div>
+<div class="section" id="global"></div>
+<div class="section" id="policy"></div>
+<div class="section" id="risk"></div>
+<div class="section" id="analysis"></div>
+<div class="section" id="news"></div>
+<div class="section" id="metals"></div>
+<div class="section" id="lithium"></div>
+</main>
+</div>
+<script>
+fetch('macro_data.json').then(r=>r.json()).then(d=>{window.macroData=d;window._initDash();}).catch(()=>{console.error('macro_data.json load failed');});
+</script>
+<script src="static/dashboard_static.js"></script>
+</body>
+</html>
