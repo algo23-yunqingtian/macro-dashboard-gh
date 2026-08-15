@@ -1268,10 +1268,10 @@ async function renderLithium() {
     const el = document.getElementById('lithium');
     el.innerHTML = '<div class="loading">加载中...</div>';
     try {
-        var cosData = window.macroData ? (window.macroData['lithium_companies'] || {companies:[], companies_list:[], summary:{}}) : {companies:[], companies_list:[], summary:{}};
-        var chainsData = window.macroData ? (window.macroData['lithium_chain_summary'] || {chains:[], summary:{}, supply:{}, demand:{}}) : {chains:[], summary:{}, supply:{}, demand:{}};
-        var cos = cosData.companies || cosData.companies_list || [];
-        var chains = chainsData.chains || chainsData.summary || [];
+        var cosData = window.macroData ? (window.macroData['lithium_companies'] || []) : [];
+        var chainsData = window.macroData ? (window.macroData['lithium_chain_summary'] || []) : [];
+        var cos = Array.isArray(cosData) ? cosData : (cosData.companies || []);
+        var chains = Array.isArray(chainsData) ? chainsData : (chainsData.chains || []);
 
         // KPI summary
         const totalInv = chains.reduce((s, c) => s + (c.total_inv_billion || 0), 0);
